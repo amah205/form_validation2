@@ -6,24 +6,42 @@ const amountEl_two = document.getElementById('amount-two');
 
 const rateEl = document.getElementById('rate');
 const swap = document.getElementById('swap');
+// fetching api using async await
+const cryptoApi =async function(filePath){
+  try{
+    const res =await fetch(filePath);
+    if(!res.ok){
+      throw new Error('Network response was not ok')
+    }
+
+    // console.log(res)
+    const dataCryptoApi=await res.json()
+    // console.log(dataCryptoApi)
+    return dataCryptoApi
+
+  }catch (error){
+    throw new Error(`Error loading JSON:', ${error.message}`)
+  }
+}
+
+
+
+
 
 // fetch exchange rate update DOM
 function calculate(){
   const currency_one=currencyEl_one.value;
   const currency_two=currencyEl_two.value;
   
-  fetch(`https://v6.exchangerate-api.com/v6/cdf73566892cddd69db187bd/latest/${currency_one}`)
-    .then(res => res.json())
-    .then(data => {
-      //  console.log(data)
-      const rate =data.conversion_rates[currency_two]
-
-      rateEl.innerText =`1 ${currency_one} = ${rate} ${currency_two}`
-      // console.log(rate)
-
-      amountEl_two.value=(amountEl_one.value * rate).toFixed(2)
-    })
-
+  cryptoApi(`https://v6.exchangerate-api.com/v6/cdf73566892cddd69db187bd/latest/${currency_one}`)
+  .then(data =>{
+    //  data.json()
+    const rate =data.conversion_rates[currency_two]
+    rateEl.innerText=`1 ${currency_one} = ${rate} ${currency_two}`
+    amountEl_two.value=(amountEl_one.value * rate).toFixed(2)
+  
+  })
+ 
 }
 
 // Evnt listener
@@ -35,43 +53,12 @@ amountEl_two.addEventListener('input',calculate)
 calculate()
 
 swap.addEventListener('click', ()=>{
- /* const temp =currencyEl_one.value
-  currencyEl_one.value=currencyEl_two.value
-  currencyEl_two.value=temp;*/
   [currencyEl_one.value,currencyEl_two.value] = [currencyEl_two.value,currencyEl_one.value]
   calculate()
 })
 
-// Fetch exchange rates and update the DOM
-/*function caclulate() {
-  const currency_one = currencyEl_one.value;
-  const currency_two = currencyEl_two.value;
 
-  fetch(`https://api.exchangerate-api.com/v4/latest/${currency_one}`)
-    .then(res => res.json())
-    .then(data => {
-      // console.log(data);
-      const rate = data.rates[currency_two];
 
-      rateEl.innerText = `1 ${currency_one} = ${rate} ${currency_two}`;
 
-      amountEl_two.value = (amountEl_one.value * rate).toFixed(2);
-    });
-}
-
-// Event listeners
-currencyEl_one.addEventListener('change', caclulate);
-amountEl_one.addEventListener('input', caclulate);
-currencyEl_two.addEventListener('change', caclulate);
-amountEl_two.addEventListener('input', caclulate);
-
-swap.addEventListener('click', () => {
-  const temp = currencyEl_one.value;
-  currencyEl_one.value = currencyEl_two.value;
-  currencyEl_two.value = temp;
-  caclulate();
-});
-
-caclulate();*/
 
 
